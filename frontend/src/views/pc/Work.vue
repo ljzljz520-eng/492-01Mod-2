@@ -115,6 +115,22 @@
             {{ formatDateTime(row.endTime) }}
           </template>
         </el-table-column>
+        <el-table-column prop="requiredCerts" label="岗位证件" min-width="200">
+          <template #default="{ row }">
+            <div v-if="row.requiredCerts" class="flex flex-wrap gap-1">
+              <el-tag 
+                v-for="cert in formatCertsArray(row.requiredCerts)" 
+                :key="cert.value"
+                size="small"
+                type="info"
+                class="rounded-full"
+              >
+                {{ cert.label }}
+              </el-tag>
+            </div>
+            <span v-else class="text-gray-400">-</span>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
             <el-button 
@@ -238,6 +254,15 @@
             value-format="YYYY-MM-DD HH:mm:ss"
           />
         </el-form-item>
+        <el-form-item label="岗位证件">
+          <el-checkbox-group v-model="formData.requiredCertsArray" class="flex flex-wrap gap-4">
+            <el-checkbox value="electrician" label="电工证">电工证</el-checkbox>
+            <el-checkbox value="welder" label="焊工证">焊工证</el-checkbox>
+            <el-checkbox value="height_work" label="高处作业证">高处作业证</el-checkbox>
+            <el-checkbox value="health" label="健康证">健康证</el-checkbox>
+          </el-checkbox-group>
+          <div class="text-xs text-gray-500 mt-1">选择该岗位要求的证件类型，排班时将自动检查</div>
+        </el-form-item>
         <el-form-item label="备注">
           <el-input 
             v-model="formData.remark" 
@@ -305,6 +330,8 @@ const formData = reactive({
   workTime: null,
   startTime: null,
   endTime: null,
+  requiredCerts: '',
+  requiredCertsArray: [],
   remark: ''
 })
 
@@ -368,6 +395,8 @@ const handleAdd = () => {
     workTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
     startTime: null,
     endTime: null,
+    requiredCerts: '',
+    requiredCertsArray: [],
     remark: ''
   })
   dialogVisible.value = true
@@ -390,6 +419,8 @@ const handleEdit = async (row) => {
         workTime: res.data.workTime ? dayjs(res.data.workTime).format('YYYY-MM-DD HH:mm:ss') : null,
         startTime: res.data.startTime ? dayjs(res.data.startTime).format('YYYY-MM-DD HH:mm:ss') : null,
         endTime: res.data.endTime ? dayjs(res.data.endTime).format('YYYY-MM-DD HH:mm:ss') : null,
+        requiredCerts: res.data.requiredCerts || '',
+        requiredCertsArray: res.data.requiredCerts ? res.data.requiredCerts.split(',') : [],
         remark: res.data.remark || ''
       })
       dialogVisible.value = true
@@ -409,11 +440,19 @@ const handleSubmit = async () => {
     if (valid) {
       submitting.value = true
       try {
+        const submitData = {
+          ...formData,
+          requiredCerts: formData.requiredCertsArray.length > 0 
+            ? formData.requiredCertsArray.join(',') 
+            : ''
+        }
+        delete submitData.requiredCertsArray
+        
         let res
         if (formData.id) {
-          res = await workApi.update(formData.id, formData)
+          res = await workApi.update(formData.id, submitData)
         } else {
-          res = await workApi.save(formData)
+          res = await workApi.save(submitData)
         }
         if (res.code === 200) {
           ElMessage.success(formData.id ? '更新成功' : '新增成功')
@@ -428,6 +467,20 @@ const handleSubmit = async () => {
       }
     }
   })
+}
+
+const formatCertsArray = (certs) => {
+  if (!certs) return []
+  const typeMap = {
+    electrician: '电工证',
+    welder: '焊工证',
+    height_work: '高处作业证',
+    health: '健康证'
+  }
+  return certs.split(',').map(c => ({
+    value: c,
+    label: typeMap[c] || c
+  }))
 }
 
 const handleDelete = async (row) => {

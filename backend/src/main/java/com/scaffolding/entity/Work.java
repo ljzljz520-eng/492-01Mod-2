@@ -55,8 +55,7 @@ public class Work extends BaseEntity {
      */
     private String priority;
 
-    /**
-     * 备注
-     */
     private String remark;
+
+    private String requiredCerts;
 }

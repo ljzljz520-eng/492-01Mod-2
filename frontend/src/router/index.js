@@ -35,6 +35,14 @@ const routes = [
       {
         path: 'user',
         component: () => import('@/views/pc/User.vue')
+      },
+      {
+        path: 'certificate',
+        component: () => import('@/views/pc/Certificate.vue')
+      },
+      {
+        path: 'work-assignment',
+        component: () => import('@/views/pc/WorkAssignment.vue')
       }
     ]
   },

@@ -37,6 +37,14 @@
               <el-icon><User /></el-icon>
               <span>用户管理</span>
             </el-menu-item>
+            <el-menu-item index="/pc/certificate">
+              <el-icon><CreditCard /></el-icon>
+              <span>证件管理</span>
+            </el-menu-item>
+            <el-menu-item index="/pc/work-assignment">
+              <el-icon><Calendar /></el-icon>
+              <span>排班管理</span>
+            </el-menu-item>
           </el-menu>
         </el-aside>
         <el-main class="p-6">
@@ -50,7 +58,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Document, Briefcase, RefreshRight, User } from '@element-plus/icons-vue'
+import { Document, Briefcase, RefreshRight, User, CreditCard, Calendar } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
